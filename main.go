@@ -1,7 +1,9 @@
 package Forth_Team_Axiom
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"strconv"
 )
 
@@ -123,9 +125,61 @@ func isWhitespace(char byte) bool {
 	}
 }
 
-// tokenizeFile reads the file and converts it into tokens
-func tokenizeFile(filePath string) []LexicalToken {
-	// Converts file content into a series of tokens
+// tokenizeFile converts the lines into a different objects of LexicalToken. it reads the whole file, breaks it into parts we can work with (tokens), and figures out what each part is (is it a number, an operation, etc.).
+func tokenizeFile(filePath string) ([]LexicalToken, error) {
+	fileContent, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file: %w", err) // using fmt.Errorf to wrap and return an error with context
+	}
+
+	var tokens []LexicalToken // this will hold all our tokens
+	var currentToken string
+	line, col := 1, 1 // tracking line and column for error messages and debugging
+
+	// helper function to add tokens to the list
+	addToken := func(tokenType int) {
+		if currentToken != "" {
+			tokens = append(tokens, LexicalToken{
+				content:   currentToken,
+				tokenType: tokenType,
+				location:  SourceLocation{fileName: filePath, lineNumber: line, columnNumber: col - len(currentToken)},
+			})
+			currentToken = "" // reset current token after adding
+		}
+	}
+
+	for i, char := range string(fileContent) {
+		switch {
+		case isWhitespace(char):
+			if char == '\n' {
+				line++
+				col = 1 // reset column at new line
+			} else {
+				col++
+			}
+			addToken(word_type) // end of a word, potentially, if we were building one
+		case char == '+':
+			addToken(word_type) // end previous token if it was building
+			addToken(add_type)
+		case char == '-':
+			addToken(word_type) // end previous token if it was building
+			addToken(sub_type)
+		case char == '*':
+			addToken(word_type) // end previous token if it was building
+			addToken(mul_type)
+		case char == '/':
+			addToken(word_type) // end previous token if it was building
+			addToken(div_type)
+		case isNumeric(char):
+			currentToken += string(char) // build the number
+		default:
+			currentToken += string(char) // build a word or operation name
+		}
+	}
+
+	addToken(word_type) // check if there's one last token to add
+
+	return tokens, nil // all good, return the tokens
 }
 
 // Interpreter stores the state and manages the execution of tokens
