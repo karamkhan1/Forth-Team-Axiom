@@ -3,6 +3,7 @@ package main
 import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"strconv"
 	"strings"
@@ -84,21 +85,30 @@ func main() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Forth REPL")
 
-	input := widget.NewEntry()
+	input := newHistoryEntry()
 	input.SetPlaceHolder("Enter Forth commands here...")
 
 	output := widget.NewLabel("")
 	output.Wrapping = fyne.TextWrapWord
 
+	scrollContainer := container.NewVScroll(output)
+	scrollContainer.SetMinSize(fyne.NewSize(780, 400))
+
 	submitButton := widget.NewButton("Execute", func() {
 		executeForth(input.Text, output)
-		input.SetText("") // Clear the input after executing the command
+		input.SetText("")
 	})
+
+	clearButton := widget.NewButton("Clear", func() {
+		output.SetText("")
+	})
+
+	buttonContainer := container.New(layout.NewGridLayout(2), submitButton, clearButton)
 
 	content := container.NewVBox(
 		input,
-		submitButton,
-		output,
+		buttonContainer,
+		scrollContainer,
 	)
 
 	myWindow.SetContent(content)
