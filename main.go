@@ -89,16 +89,17 @@ func executeForth(input string, output *widget.Label) {
         }
     }
 
-    result = "Stack: " + globalStack.peekAll()
+    result = globalStack.peekAll() + "<- Top"
     output.SetText(output.Text + "\n" + result)
 }
 
 type historyEntry struct {
     widget.Entry
+    output *widget.Label 
 }
 
-func newHistoryEntry() *historyEntry {
-    entry := &historyEntry{}
+func newHistoryEntry(output *widget.Label) *historyEntry {
+    entry := &historyEntry{output: output}
     entry.ExtendBaseWidget(entry)
     return entry
 }
@@ -117,6 +118,9 @@ func (e *historyEntry) TypedKey(key *fyne.KeyEvent) {
             e.SetText(commandHistory[currentHistoryIndex])
             e.CursorRow = 0
         }
+    case fyne.KeyReturn, fyne.KeyEnter: 
+        executeForth(e.Text, e.output)
+        e.SetText("") 
     default:
         e.Entry.TypedKey(key)
     }
@@ -126,22 +130,22 @@ func main() {
     myApp := app.New()
     myWindow := myApp.NewWindow("Forth REPL")
 
-    input := newHistoryEntry()
-    input.SetPlaceHolder("Enter Forth commands here...")
-
     output := widget.NewLabel("")
     output.Wrapping = fyne.TextWrapWord
+
+    input := newHistoryEntry(output) 
+    input.SetPlaceHolder("Enter Forth commands here...")
 
     scrollContainer := container.NewVScroll(output)
     scrollContainer.SetMinSize(fyne.NewSize(780, 400))
 
     submitButton := widget.NewButton("Execute", func() {
         executeForth(input.Text, output)
-        input.SetText("")
+        input.SetText("") 
     })
 
     clearButton := widget.NewButton("Clear", func() {
-        output.SetText("")
+        output.SetText("") 
     })
 
     buttonContainer := container.New(layout.NewGridLayout(2), submitButton, clearButton)
@@ -156,3 +160,5 @@ func main() {
     myWindow.Resize(fyne.NewSize(800, 600))
     myWindow.ShowAndRun()
 }
+
+
