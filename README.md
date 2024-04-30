@@ -12,11 +12,8 @@ To use this interpreter, compile the Go source files and execute the resulting b
 
 ## Example Run
 
-```plaintext
-> 1 2 + .  // Outputs 3
-> 3 DUP * .  // Outputs 9
-> 4 5 SWAP . .  // Outputs 4 then 5
-```
+<img width="912" alt="Screenshot 2024-04-30 at 1 03 21 PM" src="https://github.com/karamkhan1/Forth-Team-Axiom/assets/79159011/4849495f-5a3f-46c5-9b65-75e5573ccece">
+
 
 ## Proposed Class Diagram
 <img width="1443" alt="Object_Diagram" src="https://github.com/karamkhan1/Forth-Team-Axiom/assets/79159011/1ff2e2c3-6fad-4e92-8846-aae3fe38cd34">
